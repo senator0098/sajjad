@@ -1,0 +1,39 @@
+import os
+from googletrans import Translator
+import time
+
+# Define file paths
+filepath = "C:/Users/MOUOOD/Desktop/sss"  # Update this to your directory
+filename1 = "Oppenheimer.2023.720p.BluRay.x264-QRips.EN_film2subtitle_com.srt"  # Original subtitle file
+filename2 = "Oppenheimer.2023.720p.BluRay.x264-QRips.EN_film2subtitle_com_fa.srt"  # Translated subtitle file
+
+# Characters to identify subtitle lines (not timestamps or metadata)
+nums = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+# Initialize the translator
+translator = Translator()
+
+# Read the original subtitle file
+with open(os.path.join(filepath, filename1), encoding='utf-8') as f:
+    sub_lines = f.readlines()
+
+# Open the new file for writing translations
+with open(os.path.join(filepath, filename2), 'w', encoding="utf-8") as f:
+    for line_en in sub_lines:
+        # Check if line is a timestamp, sequence number, or blank line
+        if line_en.strip() == '' or line_en[0] in nums or '-->' in line_en:
+            f.write(line_en)  # Write directly without translation
+        else:
+            try:
+                # Translate only non-empty subtitle lines
+                if line_en.strip():
+                    print(f"Translating: {line_en.strip()}")
+                    line_fa = translator.translate(line_en.strip(), src='en', dest='fa')
+                    f.write(line_fa.text + '\n')
+                    # Optionally add a small delay to avoid hitting rate limits
+                    time.sleep(0.5)
+            except Exception as e:
+                print(f"Error translating line: {line_en.strip()} -> {e}")
+                f.write(line_en)  # Write the original line in case of error
+
+print("Translation complete.")
